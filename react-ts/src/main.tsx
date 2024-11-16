@@ -104,7 +104,36 @@ type AppendArgument<F, A> = F extends (...arg:infer Args)=>infer R
 type FinalFn = AppendArgument<Fn, string> 
 // (x: boolean, a: number, b: string) => number
 
+//第六題
 
+//定義了一個NativeFlat工具類型，支援把配額類型拍平（淺化）。
+type NaiveFlat<T extends any[]> = T extends Array<infer U>
+?U extends any[]
+  ?U[number]
+  :U 
+:never 
+
+type NaiveResult = NaiveFlat<[['a'], ['b', 'c'], ['d','ff']]>
+//在完成NaiveFlat工具類型之後，在實作繼續DeepFlat工具類型時，以支援多種資料庫類型：
+
+// type DeepFlat<T extends any[]> = unknown // 你的实现代码
+type DeepFlat<T> = T extends Array<infer U>
+  ? U extends any[]
+    ? DeepFlat<U>
+    : U
+  : never;
+// type DeepFlat<T> = T extends [infer First, ...infer Rest]
+//   ? First extends any[]
+//     ? DeepFlat<First> | DeepFlat<Rest>
+//     : First | DeepFlat<Rest>
+//   : never;
+
+// 测试用例
+type Deep = [['a'], ['b', 'c'], [['d']], [[[['e']]]]];
+
+
+type DeepTestResult = DeepFlat<Deep>  
+// DeepTestResult: "a" | "b" | "c" | "d" | "e"
 
 
 createRoot(document.getElementById('root')!).render(
